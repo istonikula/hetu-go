@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/istonikula/hetu-go/bday"
@@ -14,20 +13,11 @@ import (
 )
 
 type Valid struct {
-	Val string
-}
-
-func New(b bday.Val, c century.Val, n nnn.Val, cc rune) Valid {
-	// YYYYMMDD (8) + Century (1) + NNN (3) + CC (1) = 13 bytes.
-	var sb strings.Builder
-	sb.Grow(13)
-
-	sb.WriteString(strconv.Itoa(b.Number()))
-	sb.WriteRune(rune(c.Id))
-	fmt.Fprintf(&sb, "%03d", n)
-	sb.WriteRune(cc)
-
-	return Valid{Val: sb.String()}
+	Birthday bday.Val
+	Century  century.Val
+	Nnn      nnn.Val
+	Control  rune
+	Str      string
 }
 
 const (
@@ -37,13 +27,13 @@ const (
 	groupCtrl
 )
 
-var pattern = regexp.MustCompile(`^(.{6})(.)(.{3})(.)`)
+var pattern = regexp.MustCompile(`^(.{6})(.)(.{3})(.)$`)
 
 func Parse(candidate string) (Valid, error) {
 	m := pattern.FindStringSubmatch(candidate)
 
 	if m == nil {
-		return Valid{}, errors.New("invalid hetu: pattern mismatch")
+		return Valid{}, errors.New("invalid hetu format")
 	}
 
 	c, err := century.Parse(m[groupCentury])
@@ -66,5 +56,26 @@ func Parse(candidate string) (Valid, error) {
 		return Valid{}, errors.New("invalid hetu: control char mismatch")
 	}
 
-	return New(b, c, n, cc), nil
+	return Valid{Birthday: b, Century: c, Control: cc, Nnn: n, Str: candidate}, nil
+}
+
+// NOTE: generates "-" and "A" century ids only
+func Generate(n nnn.Val, b bday.Val) Valid {
+	cc := ctrl.From(b, n)
+	var c century.Val
+	if b.Century() == 1900 {
+		c, _ = century.Parse("-")
+	} else {
+		c, _ = century.Parse("A")
+	}
+
+	// DDMMYY (6) + Century (1) + NNN (3) + CC (1) = 11 bytes.
+	var sb strings.Builder
+	sb.Grow(11)
+	fmt.Fprintf(&sb, "%06d", b.Number())
+	sb.WriteRune(rune(c.Id))
+	fmt.Fprintf(&sb, "%03d", n)
+	sb.WriteRune(cc)
+
+	return Valid{Birthday: b, Century: c, Nnn: n, Control: cc, Str: sb.String()}
 }

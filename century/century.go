@@ -12,7 +12,7 @@ type Val struct {
 func Parse(candidate string) (Val, error) {
 	c, ok := ById[Id(rune(candidate[0]))]
 	if !ok {
-		return c, fmt.Errorf("unsupported century %s", candidate)
+		return c, fmt.Errorf("unsupported century id: %s", candidate)
 	}
 	return c, nil
 }

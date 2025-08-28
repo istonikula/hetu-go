@@ -5,7 +5,7 @@ import (
 	"github.com/istonikula/hetu-go/nnn"
 )
 
-var lookup = "0123456789ABCDEFHJKLMNPRSTUVWXY"
+const lookup = "0123456789ABCDEFHJKLMNPRSTUVWXY"
 
 func From(b bday.Val, n nnn.Val) rune {
 	num := b.Number()*1000 + int(n)
