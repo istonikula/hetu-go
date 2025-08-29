@@ -2,6 +2,7 @@ package hetu_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -90,6 +91,28 @@ func TestHetu(t *testing.T) {
 		}
 	})
 
+	t.Run("sanitizing", func(t *testing.T) {
+		tests := []struct {
+			name  string
+			input string
+		}{
+			{name: "valid", input: "110302A973D"},
+			{name: "valid, whitespace", input: "  110302A973D   "},
+			{name: "century id, lowercase", input: "110302a973D"},
+			{name: "control, lowercase", input: "110302A973d"},
+			{name: "valid, sloppy", input: "	110302a973d  "},
+		}
+
+		for _, test := range tests {
+			t.Run(test.name, func(t *testing.T) {
+				actual, err := hetu.Parse(test.input)
+				assert.NoError(t, err)
+				sanitized := strings.ToUpper(strings.TrimSpace(test.input))
+				assert.Equal(t, sanitized, actual.Str)
+			})
+		}
+	})
+
 	t.Run("invalid", func(t *testing.T) {
 		tests := []struct {
 			name  string
@@ -98,10 +121,8 @@ func TestHetu(t *testing.T) {
 		}{
 			{name: "birthday, format", input: "xxxxxx-450F", msg: "invalid birthday format"},
 			{name: "birthday, date", input: "310425A450F", msg: "invalid birthday: 310425"},
-			{name: "century id, lowercase", input: "220305a244S", msg: "unsupported century id: a"},
 			{name: "century id, unknown", input: "220305G244S", msg: "unsupported century id: G"},
 			{name: "nnn", input: "020146-000F", msg: "invalid nnn: 000"},
-			{name: "control, lowercase", input: "020146-450f", msg: "invalid hetu: control char mismatch"},
 			{name: "control, mismatch", input: "020146-450A", msg: "invalid hetu: control char mismatch"},
 			{name: "too short", input: "020146-450", msg: "invalid hetu format"},
 			{name: "too long", input: "020146-450FX", msg: "invalid hetu format"},

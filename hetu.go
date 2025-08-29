@@ -30,7 +30,9 @@ const (
 var pattern = regexp.MustCompile(`^(.{6})(.)(.{3})(.)$`)
 
 func Parse(candidate string) (Valid, error) {
-	m := pattern.FindStringSubmatch(candidate)
+	sanitized := strings.ToUpper(strings.TrimSpace(candidate))
+
+	m := pattern.FindStringSubmatch(sanitized)
 
 	if m == nil {
 		return Valid{}, errors.New("invalid hetu format")
@@ -56,7 +58,7 @@ func Parse(candidate string) (Valid, error) {
 		return Valid{}, errors.New("invalid hetu: control char mismatch")
 	}
 
-	return Valid{Birthday: b, Century: c, Control: cc, Nnn: n, Str: candidate}, nil
+	return Valid{Birthday: b, Century: c, Control: cc, Nnn: n, Str: sanitized}, nil
 }
 
 func Generate(n nnn.Val, b bday.Val) Valid {
