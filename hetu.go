@@ -61,12 +61,14 @@ func Parse(candidate string) (Valid, error) {
 
 func Generate(n nnn.Val, b bday.Val) Valid {
 	cc := ctrl.From(b, n)
+
 	var c century.Val
-	if b.Century() == 1800 {
+	switch b.Century() {
+	case 1800:
 		c = century.Random('+')
-	} else if b.Century() == 1900 {
+	case 1900:
 		c = century.Random('-')
-	} else {
+	default:
 		c = century.Random('A')
 	}
 
