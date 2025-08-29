@@ -14,6 +14,7 @@ import (
 )
 
 func TestHetu(t *testing.T) {
+	var bday1800 = time.Date(1899, 8, 29, 0, 0, 0, 0, time.UTC)
 	var bday1900 = time.Date(1980, 2, 22, 0, 0, 0, 0, time.UTC)
 	var bday2000 = time.Date(2000, 11, 12, 0, 0, 0, 0, time.UTC)
 	var mustRandomBday = func() bday.Val {
@@ -35,6 +36,7 @@ func TestHetu(t *testing.T) {
 			f([]string{"-", "Y", "X", "W", "V", "U"}, "180851%s229L"),
 			f([]string{"A", "B", "C", "D", "E", "F"}, "010100%s030D")...,
 		)
+		tests = append(tests, "050599+952H")
 
 		for _, test := range tests {
 			t.Run("parse: "+test, func(t *testing.T) {
@@ -52,19 +54,27 @@ func TestHetu(t *testing.T) {
 			temporal bool
 		}{
 			{input: "210721-1703", female: true},
+			{input: hetu.Generate(nnn.Generate(nnn.GenderFemale), bday.Val(bday1800)).Str, female: true},
 			{input: hetu.Generate(nnn.Generate(nnn.GenderFemale), bday.Val(bday1900)).Str, female: true},
+			{input: hetu.Generate(nnn.Generate(nnn.GenderFemale), bday.Val(bday2000)).Str, female: true},
 			{input: hetu.Generate(nnn.Generate(nnn.GenderFemale), mustRandomBday()).Str, female: true},
 
 			{input: "260785-309A"},
+			{input: hetu.Generate(nnn.Generate(nnn.GenderMale), bday.Val(bday1800)).Str},
+			{input: hetu.Generate(nnn.Generate(nnn.GenderMale), bday.Val(bday1900)).Str},
 			{input: hetu.Generate(nnn.Generate(nnn.GenderMale), bday.Val(bday2000)).Str},
 			{input: hetu.Generate(nnn.Generate(nnn.GenderMale), mustRandomBday()).Str},
 
 			{input: "090707-998E", female: true, temporal: true},
+			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderFemale), bday.Val(bday1800)).Str, female: true, temporal: true},
 			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderFemale), bday.Val(bday1900)).Str, female: true, temporal: true},
+			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderFemale), bday.Val(bday2000)).Str, female: true, temporal: true},
 			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderFemale), mustRandomBday()).Str, female: true, temporal: true},
 
 			{input: "050162-981N", temporal: true},
+			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderMale), bday.Val(bday1800)).Str, temporal: true},
 			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderMale), bday.Val(bday1900)).Str, temporal: true},
+			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderMale), bday.Val(bday2000)).Str, temporal: true},
 			{input: hetu.Generate(nnn.GenerateTemporal(nnn.GenderMale), mustRandomBday()).Str, temporal: true},
 		}
 

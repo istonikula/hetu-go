@@ -59,14 +59,15 @@ func Parse(candidate string) (Valid, error) {
 	return Valid{Birthday: b, Century: c, Control: cc, Nnn: n, Str: candidate}, nil
 }
 
-// NOTE: generates "-" and "A" century ids only
 func Generate(n nnn.Val, b bday.Val) Valid {
 	cc := ctrl.From(b, n)
 	var c century.Val
-	if b.Century() == 1900 {
-		c, _ = century.Parse("-")
+	if b.Century() == 1800 {
+		c = century.Random('+')
+	} else if b.Century() == 1900 {
+		c = century.Random('-')
 	} else {
-		c, _ = century.Parse("A")
+		c = century.Random('A')
 	}
 
 	// DDMMYY (6) + Century (1) + NNN (3) + CC (1) = 11 bytes.

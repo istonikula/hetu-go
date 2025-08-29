@@ -1,6 +1,9 @@
 package century
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Id rune
 
@@ -17,7 +20,14 @@ func Parse(candidate string) (Val, error) {
 	return c, nil
 }
 
+func Random(hint Id) Val {
+	ids := IdsByNum[ById[hint].Num]
+	id := ids[rand.Intn(len(ids))]
+	return ById[id]
+}
+
 var ById map[Id]Val
+var IdsByNum map[int][]Id
 
 func init() {
 	ById = make(map[Id]Val)
@@ -30,5 +40,10 @@ func init() {
 
 	for _, id := range []Id{'A', 'B', 'C', 'D', 'E', 'F'} {
 		ById[id] = Val{Id: id, Num: 2000}
+	}
+
+	IdsByNum = make(map[int][]Id)
+	for key, val := range ById {
+		IdsByNum[val.Num] = append(IdsByNum[val.Num], key)
 	}
 }
